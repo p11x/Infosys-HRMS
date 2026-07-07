@@ -169,7 +169,12 @@ VITE_FIREBASE_APP_ID=your_app_id
 - Clock in writes: `status: "checked_in"`, `checkInTime` immediately
 - Clock out writes: `status: "checked_out"`, `checkOutTime` immediately
 - No admin approval required - instant status update
-- Shows current time on dashboard
+- Shows current time and status badge
+
+**View Attendance Page** - `src/pages/admin/ViewAttendancePage.tsx`:
+- Date picker to view attendance for any day
+- Lists all employees with their check-in/out times
+- Shows status: Not Marked / Checked In / Complete
 
 **Admin Attendance** - `src/pages/admin/ViewAttendancePage.tsx`:
 - View all employee attendance records
@@ -277,4 +282,4 @@ This file serves as the primary context for understanding the HRMS application.
 - Reset password: Firebase Console → Authentication → Users
 - Add holiday: Admin Dashboard → Holiday Management
 - Approve leave: Admin → Leave Requests → Approve/Reject buttons
-- Check attendance: Admin → Attendance → view records
+- View attendance: Admin → Attendance → date picker + employee list with status

@@ -11,8 +11,14 @@ export default function ViewAttendancePage() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
 
   useEffect(() => {
-    const attUnsub = onValue(ref(db, 'Attendance'), snap => setAttendance(snap.val() || {}))
-    const empUnsub = onValue(ref(db, 'Employees'), snap => setEmployees(snap.val() || {}))
+    const attUnsub = onValue(ref(db, 'Attendance'), snap => setAttendance(snap.val() || {}), (err) => {
+      console.error('[ViewAttendancePage] Attendance DB error:', err)
+      setAttendance({})
+    })
+    const empUnsub = onValue(ref(db, 'Employees'), snap => setEmployees(snap.val() || {}), (err) => {
+      console.error('[ViewAttendancePage] Employees DB error:', err)
+      setEmployees({})
+    })
     return () => { attUnsub(); empUnsub() }
   }, [])
 

@@ -10,7 +10,10 @@ export default function ViewLeaveRequestsPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    const unsub = onValue(ref(db, 'LeaveRequests'), snap => setRequests(snap.val() || {}))
+    const unsub = onValue(ref(db, 'LeaveRequests'), snap => setRequests(snap.val() || {}), (err) => {
+      console.error('[ViewLeaveRequestsPage] DB error:', err)
+      setRequests({})
+    })
     return () => unsub()
   }, [])
 

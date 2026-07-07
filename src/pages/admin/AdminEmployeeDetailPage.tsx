@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ref, get } from 'firebase/database'
+import { ref, onValue } from 'firebase/database'
 import { db } from '../../firebase/config'
 import {
   ArrowLeft, Mail, Phone, MapPin, Calendar,
@@ -16,10 +16,14 @@ export default function AdminEmployeeDetailPage() {
 
   useEffect(() => {
     if (!uid) return
-    get(ref(db, `Employees/${uid}`)).then(snap => {
+    const unsub = onValue(ref(db, `Employees/${uid}`), snap => {
       setData(snap.exists() ? snap.val() : {})
       setLoading(false)
+    }, (err) => {
+      console.error('[AdminEmployeeDetailPage] DB error:', err)
+      setLoading(false)
     })
+    return () => unsub()
   }, [uid])
 
   const initials = (data?.name || '?').split(' ')

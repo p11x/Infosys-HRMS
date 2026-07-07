@@ -89,7 +89,7 @@ export default function AttendancePage() {
           </div>
         </div>
 
-        {!record && (
+        {(!record || record?.status === 'not_started') && (
           <button onClick={handleClockIn} disabled={loading} style={{
             width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
             backgroundColor: '#007CC2', color: 'white', fontSize: '15px',

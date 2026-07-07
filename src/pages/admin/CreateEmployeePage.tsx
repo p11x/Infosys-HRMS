@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { set, ref } from 'firebase/database'
-import { auth, db } from '../../firebase/config'
+import { auth, db, secondaryAuth } from '../../firebase/config'
 import PageLayout from '../../components/PageLayout'
 import toast from 'react-hot-toast'
 
@@ -20,10 +20,10 @@ export default function CreateEmployeePage() {
     }
     setLoading(true)
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password)
+      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, form.email, form.password)
       const uid = userCredential.user.uid
+      await secondaryAuth.signOut()
       await set(ref(db, `Users/${uid}`), { id: uid, name: form.name, email: form.email, role })
-      // Only create Employees node for employees
       if (role === 'employee') {
         await set(ref(db, `Employees/${uid}`), { uid, name: form.name, email: form.email, department: form.department })
         await set(ref(db, `LeaveBalance/${uid}`), { total: 18, used: 0, remaining: 18 })
@@ -31,8 +31,10 @@ export default function CreateEmployeePage() {
       toast.success(`${role === 'admin' ? 'Admin' : 'Employee'} created!`)
       setForm({ name: '', email: '', password: '', department: '' })
       setRole('employee')
-    } catch { toast.error('Failed to create employee') }
-    finally { setLoading(false) }
+    } catch (error: any) {
+      console.error('Create employee error:', error?.code, error?.message)
+      toast.error(error?.message || 'Failed to create employee')
+    } finally { setLoading(false) }
   }
 
   return (

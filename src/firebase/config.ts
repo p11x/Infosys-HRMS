@@ -16,6 +16,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 
+// Secondary auth instance for creating users without affecting admin session
+export const secondaryApp = initializeApp(firebaseConfig, 'secondary')
+export const secondaryAuth = getAuth(secondaryApp)
+
 // Session only — login expires when browser tab is closed
 setPersistence(auth, browserSessionPersistence).catch(console.error)
 

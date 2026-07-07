@@ -361,18 +361,6 @@ export default function DashboardPage() {
     }
   };
 
-  const getBirthdaysThisWeek = (): Employee[] => {
-    const currentMonth = new Date().getMonth();
-    const currentDay = new Date().getDate();
-    const daysUntilSunday = 7 - new Date().getDay();
-    const weekEnd = currentDay + daysUntilSunday;
-    return allEmployees.filter((emp) => {
-      if (!emp.birthday || emp.uid === uid) return false;
-      const [month, day] = emp.birthday.split("-").map(Number);
-      return month === currentMonth + 1 && currentDay <= day && day <= weekEnd;
-    });
-  };
-
   const card = {
     backgroundColor: "white",
     borderRadius: "14px",
@@ -2128,91 +2116,8 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-          </div>
+</div>
         )}
-
-        {/* ── Birthday Widget ── */}
-        <div
-          style={{
-            position: "fixed",
-            bottom: "20px",
-            right: "20px",
-            ...card,
-            padding: "16px",
-            width: "280px",
-            zIndex: 40,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
-          >
-            <Megaphone size={16} color="#007CC2" />
-            <h4
-              style={{
-                fontSize: "13px",
-                fontWeight: "700",
-                color: "#0F1C2E",
-                margin: 0,
-              }}
-            >
-              Upcoming Birthdays
-            </h4>
-          </div>
-          <div>
-            {getBirthdaysThisWeek().length === 0 ? (
-              <p style={{ fontSize: "12px", color: "#94A3B8", margin: 0 }}>
-                No birthdays this week
-              </p>
-            ) : (
-              <div
-                style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-              >
-                {getBirthdaysThisWeek().map((b) => (
-                  <div
-                    key={b.uid}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "50%",
-                        backgroundColor: "#FBBF24",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span style={{ fontSize: "10px" }}>🎂</span>
-                    </div>
-                    <span style={{ fontSize: "12px", color: "#1A2B4A" }}>
-                      {b.name}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        color: "#94A3B8",
-                        marginLeft: "auto",
-                      }}
-                    >
-                      {b.birthday}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

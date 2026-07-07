@@ -37,7 +37,8 @@ export default function AdminEmployeeDetailPage() {
     if (!STORAGE_READY) { toast.error('Storage not configured'); return }
     setUploadingOffer(true)
     try {
-      const sRef = storageRef(storage, `OfferLetters/${uid}/${file.name}`)
+      const safeName = file.name.replace(/\s+/g, '_')
+      const sRef = storageRef(storage, `OfferLetters/${uid}/${safeName}`)
       await uploadBytes(sRef, file)
       const url = await getDownloadURL(sRef)
       await set(ref(db, `Employees/${uid}/OfferLetter`), { url, sentAt: new Date().toISOString() })
@@ -51,7 +52,8 @@ export default function AdminEmployeeDetailPage() {
     if (!STORAGE_READY) { toast.error('Storage not configured'); return }
     setUploadingPayslip(true)
     try {
-      const sRef = storageRef(storage, `Payslips/${uid}/${file.name}`)
+      const safeName = file.name.replace(/\s+/g, '_')
+      const sRef = storageRef(storage, `Payslips/${uid}/${safeName}`)
       await uploadBytes(sRef, file)
       const url = await getDownloadURL(sRef)
       await push(ref(db, `Employees/${uid}/Payslips`), { url, sentAt: new Date().toISOString(), period: new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) })

@@ -10,11 +10,11 @@ service firebase.storage {
       allow write: if request.auth != null && request.auth.uid == uid;
     }
     match /OfferLetters/{uid}/{fileName} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && (request.auth.uid == uid || request.auth.token.email == 'infosys@hrms.com');
       allow write: if request.auth != null && request.auth.token.email == 'infosys@hrms.com';
     }
     match /Payslips/{uid}/{fileName} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && (request.auth.uid == uid || request.auth.token.email == 'infosys@hrms.com');
       allow write: if request.auth != null && request.auth.token.email == 'infosys@hrms.com';
     }
   }

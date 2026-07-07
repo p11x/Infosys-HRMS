@@ -20,7 +20,7 @@
       ".read": "auth != null",
       ".write": "auth != null"
     },
-"Attendance": {
+    "Attendance": {
       ".read": "root.child('Users').child(auth.uid).child('role').val() === 'admin' || auth != null",
       "$uid": {
         ".read": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'",

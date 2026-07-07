@@ -8,7 +8,7 @@ import {
   CheckSquare, UserPlus, Bell, Search, LogOut,
   TrendingUp, Clock, UserCheck, UserX, Award,
   ChevronRight, Check, X, Shield,
-  BarChart3, Settings, HelpCircle,
+  BarChart3, HelpCircle,
   AlertCircle, ArrowUpRight, Eye,
   FileCheck, Briefcase, Megaphone, Trash2, Cake
 } from 'lucide-react'
@@ -79,10 +79,7 @@ const NAV = [
   { id: 'create', label: 'Add Employee', icon: UserPlus },
 ]
 
-const BOTTOM_NAV = [
-  { id: 'settings', label: 'Settings', icon: Settings },
-  { id: 'help', label: 'Help', icon: HelpCircle },
-]
+const BOTTOM_NAV: { id: string; label: string; icon: any }[] = []
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate()

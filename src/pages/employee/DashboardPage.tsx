@@ -18,8 +18,6 @@ import {
   LogOut,
   Bell,
   ChevronRight,
-  Settings,
-  HelpCircle,
   TrendingUp,
   Shield,
   AlertCircle,
@@ -28,6 +26,7 @@ import {
   Megaphone,
   Users,
   Search,
+  Trash2,
 } from "lucide-react";
 
 interface Announcement {
@@ -218,6 +217,7 @@ export default function DashboardPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [messages, setMessages] = useState<Record<string, any>>({});
   const [leaveBalance, setLeaveBalance] = useState<LeaveBalance>({
     total: 24,
     used: 0,
@@ -329,17 +329,17 @@ export default function DashboardPage() {
       }
     }, (err) => console.error('[DashboardPage] LeaveBalance read error:', err));
 
+    // Messages for unread count
+    const u9 = onValue(ref(db, `Messages/${uid}`), (snap) => {
+      setMessages(snap.exists() ? snap.val() : {});
+    }, (err) => console.error('[DashboardPage] Messages read error:', err));
+
     return () => {
-      u1();
-      u2();
-      u3();
-      u4();
-      u5();
-      u6();
-      u7();
-      u8();
+      u1(); u2(); u3(); u4(); u5(); u6(); u7(); u8(); u9();
     };
   }, [uid]);
+
+  const unreadMessages = Object.values(messages).filter((m: any) => !m.read).length
 
   const handleLogout = () => {
     clearSession();
@@ -456,7 +456,7 @@ export default function DashboardPage() {
                   letterSpacing: "1px",
                 }}
               >
-                HRMS PORTAL
+                ONBOARDING PORTAL
               </p>
             </div>
           </div>
@@ -622,42 +622,6 @@ export default function DashboardPage() {
             borderTop: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          {[
-            { label: "Settings", icon: Settings },
-            { label: "Help", icon: HelpCircle },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.label}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "9px 12px",
-                  borderRadius: "10px",
-                  border: "none",
-                  cursor: "pointer",
-                  backgroundColor: "transparent",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    "rgba(255,255,255,0.06)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "transparent")
-                }
-              >
-                <Icon size={16} color="rgba(255,255,255,0.4)" />
-                <span
-                  style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}
-                >
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
           <button
             onClick={handleLogout}
             style={{
@@ -744,7 +708,8 @@ export default function DashboardPage() {
               Profile {completion}% Complete
             </div>
             {/* Bell */}
-            <div
+            <button
+              onClick={() => navigate("/employee/notifications")}
               style={{
                 width: "38px",
                 height: "38px",
@@ -759,7 +724,7 @@ export default function DashboardPage() {
               }}
             >
               <Bell size={18} color="#64748B" />
-              {leaves.filter((l) => l.status === "Pending").length > 0 && (
+              {unreadMessages > 0 && (
                 <span
                   style={{
                     position: "absolute",
@@ -777,10 +742,10 @@ export default function DashboardPage() {
                     justifyContent: "center",
                   }}
                 >
-                  {leaves.filter((l) => l.status === "Pending").length}
+                  {unreadMessages}
                 </span>
               )}
-            </div>
+            </button>
             {/* Avatar */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <div

@@ -12,6 +12,7 @@ import PayslipPage from './pages/employee/PayslipPage'
 import ApplyLeavePage from './pages/employee/ApplyLeavePage'
 import MyLeaveStatusPage from './pages/employee/MyLeaveStatusPage'
 import AttendancePage from './pages/employee/AttendancePage'
+import NotificationsPage from './pages/employee/NotificationsPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminEmployeeDetailPage from './pages/admin/AdminEmployeeDetailPage'
 import CreateEmployeePage from './pages/admin/CreateEmployeePage'
@@ -87,6 +88,9 @@ export default function App() {
       } />
       <Route path="/employee/attendance" element={
         <AuthGuard><AttendancePage /></AuthGuard>
+      } />
+      <Route path="/employee/notifications" element={
+        <AuthGuard><NotificationsPage /></AuthGuard>
       } />
 
       <Route path="/admin/dashboard" element={

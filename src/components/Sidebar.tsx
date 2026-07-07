@@ -10,6 +10,7 @@ import {
   Banknote,
   Calendar,
   Clock,
+  Bell,
 } from 'lucide-react'
 
 export const Sidebar = () => {
@@ -25,6 +26,7 @@ export const Sidebar = () => {
     { icon: Calendar, label: 'Apply Leave', path: '/employee/apply-leave' },
     { icon: Clock, label: 'My Leave Status', path: '/employee/leave-status' },
     { icon: Clock, label: 'Attendance', path: '/employee/attendance' },
+    { icon: Bell, label: 'Notifications', path: '/employee/notifications' },
   ]
 
   const handleLogout = async () => {

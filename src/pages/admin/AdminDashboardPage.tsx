@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ref, onValue, update, push, remove } from 'firebase/database'
 import { db } from '../../firebase/config'
 import { useSession } from '../../hooks/useSession'
+import toast from 'react-hot-toast'
 import {
   LayoutDashboard, FileText, Users, Calendar,
   CheckSquare, UserPlus, Bell, Search, LogOut,
@@ -98,6 +99,8 @@ export default function AdminDashboardPage() {
   const [selectedDept, setSelectedDept] = useState<string>('all')
   const [showPastHolidays, setShowPastHolidays] = useState(false)
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
+  const [msgOpen, setMsgOpen] = useState(false)
+  const [msgText, setMsgText] = useState('')
   const [annTitle, setAnnTitle] = useState('')
   const [annMessage, setAnnMessage] = useState('')
   const [annPriority, setAnnPriority] = useState<'low' | 'medium' | 'high'>('medium')
@@ -289,6 +292,28 @@ useEffect(() => {
     await logAction('Updated Ticket Status', `ID: ${id}, Status: ${status}`)
   }
 
+  const sendMessage = async () => {
+    if (!msgText.trim()) return
+    for (const empUid of selectedEmployees) {
+      await push(ref(db, `Messages/${empUid}`), {
+        from: 'admin',
+        text: msgText,
+        timestamp: new Date().toISOString(),
+        read: false
+      })
+    }
+    setMsgText('')
+    setSelectedEmployees([])
+    setMsgOpen(false)
+    toast.success(`Message sent to ${selectedEmployees.length} employee(s)`)
+  }
+
+  const deleteEmployee = async (empUid: string) => {
+    await remove(ref(db, `Users/${empUid}`))
+    await remove(ref(db, `Employees/${empUid}`))
+    toast.success('Employee data removed from database. Note: Auth account must be removed manually in Firebase Console.')
+  }
+
   const card = {
     backgroundColor: 'white', borderRadius: '14px',
     border: '1px solid #E8EDF2', boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
@@ -305,7 +330,7 @@ useEffect(() => {
             </div>
             <div>
               <p style={{ color: 'white', fontWeight: '800', fontSize: '14px', margin: 0, letterSpacing: '0.5px' }}>Infosys</p>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', margin: 0, letterSpacing: '1px' }}>HRMS PORTAL</p>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', margin: 0, letterSpacing: '1px' }}>ONBOARDING PORTAL</p>
             </div>
           </div>
         </div>
@@ -1008,10 +1033,36 @@ useEffect(() => {
             <div style={{ position: 'fixed', bottom: '20px', left: 'calc(50% + 110px)', transform: 'translateX(-50%)', backgroundColor: '#0F1C2E', borderRadius: '16px', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', zIndex: 100 }}>
               <span style={{ color: 'white', fontSize: '13px', fontWeight: '600' }}>{selectedEmployees.length} selected</span>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#EF4444', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Delete</button>
-                <button style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#007CC2', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Message</button>
+                <button onClick={async () => {
+                  if (confirm('Remove these employees from DB? Auth accounts require Firebase Console removal.')) {
+                    for (const empUid of selectedEmployees) {
+                      await deleteEmployee(empUid)
+                    }
+                    setSelectedEmployees([])
+                  }
+                }} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#EF4444', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Delete</button>
+                <button onClick={() => setMsgOpen(true)} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#007CC2', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Message</button>
                 <button onClick={() => setSelectedEmployees([])} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Cancel</button>
               </div>
+              
+              {msgOpen && (
+                <div style={{ position: 'fixed', top: '0', left: '0', right: '0', bottom: '0', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+                  <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', width: '400px', maxWidth: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F1C2E', margin: '0 0 12px' }}>Send Message to {selectedEmployees.length} employee(s)</h3>
+                    <textarea
+                      value={msgText}
+                      onChange={e => setMsgText(e.target.value)}
+                      placeholder="Enter your message..."
+                      rows={4}
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1.5px solid #E2E8F0', fontSize: '14px', marginBottom: '16px' }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button onClick={() => setMsgOpen(false)} style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', fontSize: '13px', cursor: 'pointer' }}>Cancel</button>
+                      <button onClick={sendMessage} style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#007CC2', color: 'white', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Send</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </main>

@@ -50,3 +50,23 @@ export interface AttendanceModel {
   checkInTime?: string
   checkOutTime?: string
 }
+
+export interface OfferLetter {
+  url: string
+  sentAt: string
+}
+
+export interface Payslip {
+  id: string
+  url: string
+  period: string
+  sentAt: string
+}
+
+export interface Message {
+  id: string
+  from: 'admin' | 'system'
+  text: string
+  timestamp: string
+  read: boolean
+}

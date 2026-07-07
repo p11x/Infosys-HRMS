@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ref, onValue } from 'firebase/database'
+import { ref, onValue, set, push } from 'firebase/database'
 import { db } from '../../firebase/config'
+import { storage, STORAGE_READY } from '../../firebase/config'
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import {
   ArrowLeft, Mail, Phone, MapPin, Calendar,
   GraduationCap, CreditCard, FileText, Download,
-  Eye, User as UserIcon, CheckCircle2, XCircle
+  Eye, User as UserIcon, CheckCircle2, XCircle,
+  Paperclip, Upload, DollarSign
 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AdminEmployeeDetailPage() {
   const { uid } = useParams()
   const navigate = useNavigate()
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [uploadingOffer, setUploadingOffer] = useState(false)
+  const [uploadingPayslip, setUploadingPayslip] = useState(false)
 
   useEffect(() => {
     if (!uid) return
@@ -25,6 +31,34 @@ export default function AdminEmployeeDetailPage() {
     })
     return () => unsub()
   }, [uid])
+
+  const handleSendOfferLetter = async (file: File) => {
+    if (!uid) return
+    if (!STORAGE_READY) { toast.error('Storage not configured'); return }
+    setUploadingOffer(true)
+    try {
+      const sRef = storageRef(storage, `OfferLetters/${uid}/${file.name}`)
+      await uploadBytes(sRef, file)
+      const url = await getDownloadURL(sRef)
+      await set(ref(db, `Employees/${uid}/OfferLetter`), { url, sentAt: new Date().toISOString() })
+      toast.success('Offer letter sent')
+    } catch (e: any) { toast.error('Failed: ' + e.message) }
+    setUploadingOffer(false)
+  }
+
+  const handleSendPayslip = async (file: File) => {
+    if (!uid) return
+    if (!STORAGE_READY) { toast.error('Storage not configured'); return }
+    setUploadingPayslip(true)
+    try {
+      const sRef = storageRef(storage, `Payslips/${uid}/${file.name}`)
+      await uploadBytes(sRef, file)
+      const url = await getDownloadURL(sRef)
+      await push(ref(db, `Employees/${uid}/Payslips`), { url, sentAt: new Date().toISOString(), period: new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) })
+      toast.success('Payslip sent')
+    } catch (e: any) { toast.error('Failed: ' + e.message) }
+    setUploadingPayslip(false)
+  }
 
   const initials = (data?.name || '?').split(' ')
     .filter(Boolean).map((x: string) => x[0]).join('').slice(0,2).toUpperCase()
@@ -190,7 +224,7 @@ export default function AdminEmployeeDetailPage() {
         </div>
 
         {/* Documents */}
-        <div style={{ ...card, marginBottom: '24px' }}>
+        <div style={{ ...card, marginBottom: '16px' }}>
           <h3 style={{ fontSize: '15px', fontWeight: '700',
             color: '#0F1C2E', margin: '0 0 12px' }}>Documents</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -198,6 +232,84 @@ export default function AdminEmployeeDetailPage() {
             <DocCard label="PAN Card" fileUrl={data?.Documents?.pan} />
             <DocCard label="Resume" fileUrl={data?.Documents?.resume} />
             <DocCard label="Photo" fileUrl={data?.Documents?.photo} />
+          </div>
+        </div>
+
+        {/* Send to Employee */}
+        <div style={{ ...card, marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: '700',
+            color: '#0F1C2E', margin: '0 0 12px' }}>Send to Employee</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '14px 16px', borderRadius: '12px',
+              backgroundColor: data?.OfferLetter ? '#F0FDF4' : '#F8FAFC',
+              border: `1px solid ${data?.OfferLetter ? '#BBF7D0' : '#E2E8F0'}`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Mail size={18} color={data?.OfferLetter ? '#16A34A' : '#94A3B8'} />
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A2B4A', margin: 0 }}>Offer Letter</p>
+                  <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
+                    {data?.OfferLetter ? `Sent: ${new Date(data.OfferLetter.sentAt).toLocaleDateString()}` : 'Not sent yet'}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {data?.OfferLetter && (
+                  <a href={data.OfferLetter.url} target="_blank" rel="noreferrer" style={{
+                    padding: '6px 10px', borderRadius: '8px',
+                    backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE',
+                    color: '#1D4ED8', fontSize: '11px', fontWeight: '700',
+                    textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px',
+                  }}><Eye size={12} /> View</a>
+                )}
+                <label style={{
+                  padding: '6px 10px', borderRadius: '8px',
+                  backgroundColor: data?.OfferLetter ? '#ECFDF5' : '#EFF6FF',
+                  border: `1px solid ${data?.OfferLetter ? '#86EFAC' : '#BFDBFE'}`,
+                  color: data?.OfferLetter ? '#15803D' : '#007CC2',
+                  fontSize: '11px', fontWeight: '700',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
+                }}>
+                  <Upload size={12} /> {data?.OfferLetter ? 'Replace' : 'Send'}
+                  <input type="file" accept="application/pdf" style={{ display: 'none' }}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleSendOfferLetter(f) }}
+                    disabled={uploadingOffer}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '14px 16px', borderRadius: '12px',
+              backgroundColor: data?.Payslips && Object.keys(data.Payslips).length > 0 ? '#F0FDF4' : '#F8FAFC',
+              border: `1px solid ${data?.Payslips && Object.keys(data.Payslips).length > 0 ? '#BBF7D0' : '#E2E8F0'}`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <DollarSign size={18} color={data?.Payslips && Object.keys(data.Payslips).length > 0 ? '#16A34A' : '#94A3B8'} />
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A2B4A', margin: 0 }}>Payslip</p>
+                  <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
+                    {data?.Payslips && Object.keys(data.Payslips).length > 0 
+                      ? `${Object.keys(data.Payslips).length} sent` : 'Not sent yet'}
+                  </p>
+                </div>
+              </div>
+              <label style={{
+                padding: '6px 10px', borderRadius: '8px',
+                backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE',
+                color: '#007CC2', fontSize: '11px', fontWeight: '700',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
+              }}>
+                <Upload size={12} /> Send New
+                <input type="file" accept="application/pdf" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleSendPayslip(f) }}
+                  disabled={uploadingPayslip}
+                />
+              </label>
+            </div>
           </div>
         </div>
       </div>

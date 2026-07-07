@@ -14,11 +14,17 @@ export default function AttendancePage() {
 
   useEffect(() => {
     if (!uid) return
+    console.log('[AttendancePage] Fetching attendance for uid:', uid, 'date:', today)
     const unsub = onValue(ref(db, `Attendance/${uid}/${today}`), snap => {
-      setRecord(snap.exists() ? snap.val() : null)
+      const data = snap.exists() ? snap.val() : null
+      console.log('[AttendancePage] Fetched record:', data, 'Condition check: (!record || record?.status === "not_started") =', !data || data?.status === 'not_started')
+      setRecord(data)
+    }, (err) => {
+      console.error('[AttendancePage] DB error:', err)
+      setRecord(null)
     })
     return () => unsub()
-  }, [uid])
+  }, [uid, today])
 
   const timeNow = () => new Date().toLocaleTimeString('en-IN',
     { hour: '2-digit', minute: '2-digit', hour12: true })

@@ -16,6 +16,9 @@ export default function ViewEmployeesPage() {
         }
       })
       setUsers(data)
+    }, (err) => {
+      console.error('[ViewEmployeesPage] DB error:', err)
+      setUsers({})
     })
     return () => unsub()
   }, [])

@@ -79,7 +79,7 @@ interface LeaveRequest {
 }
 
 interface AttendanceRecord {
-  status?: "checked_in" | "checked_out"
+  status?: "not_started" | "checked_in" | "checked_out"
   checkInTime?: string
   checkOutTime?: string
 }
@@ -258,7 +258,7 @@ export default function DashboardPage() {
       };
       setSteps(s);
       setCompletion(Object.values(s).filter(Boolean).length * 25);
-    });
+    }, (err) => console.error('[DashboardPage] Employees read error:', err));
 
     // Leave requests
     const u2 = onValue(ref(db, "LeaveRequests"), (snap) => {
@@ -272,13 +272,16 @@ export default function DashboardPage() {
         ...prev,
         pending: list.filter((l) => l.status === "Pending").length,
       }));
-    });
+    }, (err) => console.error('[DashboardPage] LeaveRequests read error:', err));
 
     // Today's attendance
     const u3 = onValue(ref(db, `Attendance/${uid}/${today}`), (snap) => {
       setAttendanceToday(
         snap.exists() ? (snap.val() as AttendanceRecord) : null,
       );
+    }, (err) => {
+      console.error('[DashboardPage] Attendance read error:', err)
+      setAttendanceToday(null)
     });
 
     // Announcements
@@ -288,14 +291,14 @@ export default function DashboardPage() {
       setAnnouncements(
         Object.keys(d).map((id) => ({ ...d[id], id })) as Announcement[],
       );
-    });
+    }, (err) => console.error('[DashboardPage] Announcements read error:', err));
 
     // Holidays
     const u5 = onValue(ref(db, "Holidays"), (snap) => {
       if (!snap.exists()) return;
       const d = snap.val();
       setHolidays(Object.keys(d).map((id) => ({ ...d[id], id })) as Holiday[]);
-    });
+    }, (err) => console.error('[DashboardPage] Holidays read error:', err));
 
     // Support Tickets
     const u6 = onValue(ref(db, "SupportTickets"), (snap) => {
@@ -305,7 +308,7 @@ export default function DashboardPage() {
         .map((id) => ({ ...d[id], id }))
         .filter((t) => t.uid === uid) as SupportTicket[];
       setTickets(list);
-    });
+    }, (err) => console.error('[DashboardPage] SupportTickets read error:', err));
 
     // All Employees for directory
     const u7 = onValue(ref(db, "Employees"), (snap) => {
@@ -314,6 +317,9 @@ export default function DashboardPage() {
       setAllEmployees(
         Object.keys(d).map((id) => ({ ...d[id], uid: id })) as Employee[],
       );
+    }, (err) => {
+      console.error('[DashboardPage] Employees list read error:', err)
+      setAllEmployees([])
     });
 
     // Leave Balance
@@ -321,7 +327,7 @@ export default function DashboardPage() {
       if (snap.exists()) {
         setLeaveBalance(snap.val() as LeaveBalance);
       }
-    });
+    }, (err) => console.error('[DashboardPage] LeaveBalance read error:', err));
 
     return () => {
       u1();

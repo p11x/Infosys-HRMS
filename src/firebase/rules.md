@@ -1,12 +1,16 @@
 {
   "rules": {
     "Users": {
+      ".read": "root.child('Users').child(auth.uid).child('role').val() === 'admin'",
+      ".write": "root.child('Users').child(auth.uid).child('role').val() === 'admin'",
       "$uid": {
         ".read": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'",
         ".write": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'"
       }
     },
     "Employees": {
+      ".read": "auth != null",
+      ".write": "root.child('Users').child(auth.uid).child('role').val() === 'admin'",
       "$uid": {
         ".read": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'",
         ".write": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'"
@@ -16,7 +20,8 @@
       ".read": "auth != null",
       ".write": "auth != null"
     },
-    "Attendance": {
+"Attendance": {
+      ".read": "root.child('Users').child(auth.uid).child('role').val() === 'admin' || auth != null",
       "$uid": {
         ".read": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'",
         ".write": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'"
@@ -39,10 +44,8 @@
       ".write": "auth != null"
     },
     "LeaveBalance": {
-      "$uid": {
-        ".read": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'",
-        ".write": "root.child('Users').child(auth.uid).child('role').val() === 'admin'"
-      }
+      ".read": "auth != null",
+      ".write": "root.child('Users').child(auth.uid).child('role').val() === 'admin'"
     }
   }
 }

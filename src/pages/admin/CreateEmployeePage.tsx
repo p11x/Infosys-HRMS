@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth'
 import { set, ref } from 'firebase/database'
 import { auth, db, secondaryAuth } from '../../firebase/config'
 import PageLayout from '../../components/PageLayout'
@@ -22,18 +22,29 @@ export default function CreateEmployeePage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(secondaryAuth, form.email, form.password)
       const uid = userCredential.user.uid
-      await secondaryAuth.signOut()
-      await set(ref(db, `Users/${uid}`), { id: uid, name: form.name, email: form.email, role })
+      const userWrite = set(ref(db, `Users/${uid}`), { id: uid, name: form.name, email: form.email, role })
+      const employeeWrites = []
       if (role === 'employee') {
-        await set(ref(db, `Employees/${uid}`), { uid, name: form.name, email: form.email, department: form.department })
-        await set(ref(db, `LeaveBalance/${uid}`), { total: 18, used: 0, remaining: 18 })
+        employeeWrites.push(set(ref(db, `Employees/${uid}`), { uid, name: form.name, email: form.email, department: form.department }))
+        employeeWrites.push(set(ref(db, `LeaveBalance/${uid}`), { total: 18, used: 0, remaining: 18 }))
       }
+      await Promise.all([userWrite, ...employeeWrites])
+      await secondaryAuth.signOut()
       toast.success(`${role === 'admin' ? 'Admin' : 'Employee'} created!`)
       setForm({ name: '', email: '', password: '', department: '' })
       setRole('employee')
     } catch (error: any) {
       console.error('Create employee error:', error?.code, error?.message)
-      toast.error(error?.message || 'Failed to create employee')
+      const currentUser = secondaryAuth.currentUser
+      if (currentUser) {
+        await deleteUser(currentUser).catch(() => {})
+        await secondaryAuth.signOut().catch(() => {})
+      }
+      if (error?.code === 'auth/email-already-in-use') {
+        toast.error('Email already exists. Try a different email.')
+      } else {
+        toast.error(`Failed: ${error?.code || 'unknown'} - ${error?.message || 'Try again'}`)
+      }
     } finally { setLoading(false) }
   }
 

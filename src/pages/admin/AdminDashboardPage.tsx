@@ -29,7 +29,7 @@ interface LeaveReq {
 }
 interface AttendanceRecord {
   uid: string; date: string
-  status?: "checked_in" | "checked_out"
+  status?: "not_started" | "checked_in" | "checked_out"
   checkInTime?: string; checkOutTime?: string
   employeeName?: string
 }
@@ -115,21 +115,22 @@ export default function AdminDashboardPage() {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   })
 
-  useEffect(() => {
+useEffect(() => {
     const u1 = onValue(ref(db, 'Users'), async snap => {
-      if (!snap.exists()) { setLoading(false); return }
-      const raw = snap.val()
-      const list: Employee[] = []
-      for (const uid of Object.keys(raw)) {
-        if (raw[uid].role !== 'employee') continue
-        const { get, ref: r } = await import('firebase/database')
-        const es = await get(r(db, `Employees/${uid}`))
-        const ed = es.exists() ? es.val() : {}
-        const comp = [
-          !!(ed.name && ed.phone && ed.email),
-          !!ed.Education, !!ed.BankDetails, !!ed.Documents,
-        ].filter(Boolean).length * 25
-list.push({
+      try {
+        if (!snap.exists()) { setLoading(false); return }
+        const raw = snap.val()
+        const list: Employee[] = []
+        for (const uid of Object.keys(raw)) {
+          if (raw[uid].role !== 'employee') continue
+          const { get, ref: r } = await import('firebase/database')
+          const es = await get(r(db, `Employees/${uid}`))
+          const ed = es.exists() ? es.val() : {}
+          const comp = [
+            !!(ed.name && ed.phone && ed.email),
+            !!ed.Education, !!ed.BankDetails, !!ed.Documents,
+          ].filter(Boolean).length * 25
+          list.push({
             uid,
             name: raw[uid]?.name || ed?.name || ed?.email || 'Unknown Employee',
             email: raw[uid]?.email || ed?.email || '',
@@ -138,14 +139,23 @@ list.push({
             completion: comp,
             department: ed?.department || '',
           })
+        }
+        setEmployees(list)
+        setLoading(false)
+      } catch (err) {
+        console.error('[AdminDashboardPage] Users read error:', err)
+        setLoading(false)
       }
-      setEmployees(list)
+    }, (err) => {
+      console.error('[AdminDashboardPage] Users DB error:', err)
       setLoading(false)
     })
     const u2 = onValue(ref(db, 'LeaveRequests'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setLeaves(Object.keys(d).map(id => ({ ...d[id], leaveId: id })))
+    }, (err) => {
+      console.error('[AdminDashboardPage] LeaveRequests DB error:', err)
     })
     const u3 = onValue(ref(db, 'Attendance'), snap => {
       if (!snap.exists()) return
@@ -156,26 +166,36 @@ list.push({
         )
       )
       setAttendance(arr.sort((a, b) => b.date.localeCompare(a.date)))
+    }, (err) => {
+      console.error('[AdminDashboardPage] Attendance DB error:', err)
     })
     const u4 = onValue(ref(db, 'Announcements'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setAnnouncements(Object.keys(d).map(id => ({ ...d[id], id }) as Announcement))
+    }, (err) => {
+      console.error('[AdminDashboardPage] Announcements DB error:', err)
     })
     const u5 = onValue(ref(db, 'Holidays'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setHolidays(Object.keys(d).map(id => ({ ...d[id], id }) as Holiday))
+    }, (err) => {
+      console.error('[AdminDashboardPage] Holidays DB error:', err)
     })
     const u6 = onValue(ref(db, 'SupportTickets'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setTickets(Object.keys(d).map(id => ({ ...d[id], id }) as SupportTicket))
+    }, (err) => {
+      console.error('[AdminDashboardPage] SupportTickets DB error:', err)
     })
     const u7 = onValue(ref(db, 'AuditLog'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setAuditLogs(Object.keys(d).map(id => ({ ...d[id], id }) as AuditLog))
+    }, (err) => {
+      console.error('[AdminDashboardPage] AuditLog DB error:', err)
     })
     return () => { u1(); u2(); u3(); u4(); u5(); u6(); u7() }
   }, [])

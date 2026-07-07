@@ -30,6 +30,6 @@
     ]
   },
   "database": {
-    "rules": "src/firebase/database.rules"
+    "rules": "src/firebase/database.rules.json"
   }
 }

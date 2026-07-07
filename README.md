@@ -31,7 +31,7 @@ Infosys HRMS is a web portal that mirrors and extends the Infosys HRMS Android a
 | 🏦 **Bank Details** | Bank name, holder name, account number, IFSC code |
 | 📄 **Documents** | Aadhaar, PAN, resume, photo upload to Firebase Storage |
 | 📅 **Apply Leave** | Date range selection, reason, pending approval |
-| ✅ **Attendance** | Clock in/out with admin confirmation (2-factor) |
+| ✅ **Attendance** | Direct clock in/out (no admin approval needed) |
 | 🔔 **Notifications** | Announcements and leave status updates |
 | 🗓️ **Holiday Calendar** | Company holidays view |
 | 📒 **Employee Directory** | Browse all employees |
@@ -44,7 +44,6 @@ Infosys HRMS is a web portal that mirrors and extends the Infosys HRMS Android a
 |---------|-------------|
 | 📊 **Dashboard** | Real-time KPI stats (employee count, attendance, leave) |
 | 👥 **Employee Management** | Create, view, edit employees |
-| ✅ **Attendance Confirmation** | Confirm/verify employee clock-ins |
 | 📋 **Leave Management** | Approve/reject leave requests |
 | 📢 **Announcements** | Create/delete company announcements |
 | 🗓️ **Holiday Management** | Add/edit company holidays |
@@ -166,6 +165,17 @@ VITE_FIREBASE_APP_ID=your_app_id
 - Seeds default employee account: `starrail2589@gmail.com` / `sunny@2589`
 - Run once at `/setup` before production
 
+**Employee Attendance** - `src/pages/employee/AttendancePage.tsx`:
+- Clock in writes: `status: "checked_in"`, `checkInTime` immediately
+- Clock out writes: `status: "checked_out"`, `checkOutTime` immediately
+- No admin approval required - instant status update
+- Shows current time on dashboard
+
+**Admin Attendance** - `src/pages/admin/ViewAttendancePage.tsx`:
+- View all employee attendance records
+- Filter/search by date or employee name
+- Shows: check-in time, check-out time, status (Checked In/Complete)
+
 ## Authentication Flow
 
 ```
@@ -267,4 +277,4 @@ This file serves as the primary context for understanding the HRMS application.
 - Reset password: Firebase Console → Authentication → Users
 - Add holiday: Admin Dashboard → Holiday Management
 - Approve leave: Admin → Leave Requests → Approve/Reject buttons
-- Check attendance: Admin → Attendance → view/confirm records
+- Check attendance: Admin → Attendance → view records

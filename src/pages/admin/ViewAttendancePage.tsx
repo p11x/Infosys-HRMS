@@ -8,52 +8,78 @@ export default function ViewAttendancePage() {
   const [attendance, setAttendance] = useState<Record<string, any>>({})
   const [employees, setEmployees] = useState<Record<string, any>>({})
   const [search, setSearch] = useState('')
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
 
   useEffect(() => {
     const attUnsub = onValue(ref(db, 'Attendance'), snap => setAttendance(snap.val() || {}))
-    const empUnsub = onValue(ref(db, 'Users'), snap => {
-      const e: Record<string, any> = {}
-      snap.forEach(c => { if (c.val().role === 'employee') e[c.key!] = c.val() })
-      setEmployees(e)
-    })
+    const empUnsub = onValue(ref(db, 'Employees'), snap => setEmployees(snap.val() || {}))
     return () => { attUnsub(); empUnsub() }
   }, [])
 
-  const records = Object.entries(attendance).flatMap(([uid, dates]) =>
-    Object.entries(dates).map(([date, record]: any) => ({ uid, date, ...record }))
-  )
+  const records = Object.entries(attendance)
+    .flatMap(([uid, dates]) =>
+      Object.entries(dates).filter(([date]) => date === selectedDate).map(([date, record]: any) => ({ uid, date, ...record }))
+    )
 
   const filtered = records.filter(r =>
-    r.date.includes(search) || employees[r.uid]?.name?.toLowerCase().includes(search.toLowerCase())
+    r.uid && (employees[r.uid]?.name?.toLowerCase().includes(search.toLowerCase()))
   )
 
   const getStatusDisplay = (status?: string) => {
-    if (status === 'checked_out') return { label: 'Complete', color: '#15803D', icon: CheckCircle2 }
-    if (status === 'checked_in') return { label: 'Checked In', color: '#007CC2', icon: Clock }
-    return { label: '-', color: '#94A3B8', icon: Calendar }
+    if (status === 'checked_out') return { label: 'Complete', color: '#15803D' }
+    if (status === 'checked_in') return { label: 'Checked In', color: '#007CC2' }
+    return { label: 'Not Marked', color: '#94A3B8' }
   }
+
+  const allEmployeeRecords = Object.keys(employees).map(uid => {
+    const empData = employees[uid]
+    const todayRecord = attendance[uid]?.[selectedDate]
+    return {
+      uid,
+      name: empData?.name || empData?.email || 'Unknown',
+      status: todayRecord?.status || 'not_marked',
+      checkInTime: todayRecord?.checkInTime,
+      checkOutTime: todayRecord?.checkOutTime,
+    }
+  })
+
+  const filteredEmployees = allEmployeeRecords.filter(r =>
+    r.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <PageLayout title="View Attendance" subtitle="Employee attendance records">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <input
-          type="text" placeholder="Search by date or employee..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{
-            width: '100%', padding: '12px 14px', borderRadius: '10px',
-            fontSize: '14px', border: '1.5px solid #E2E8F0',
-            backgroundColor: '#F8FAFC',
-          }}
-        />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={e => setSelectedDate(e.target.value)}
+            style={{
+              padding: '10px 12px', borderRadius: '10px',
+              fontSize: '14px', border: '1.5px solid #E2E8F0',
+              backgroundColor: '#F8FAFC', color: '#1A2B4A',
+            }}
+          />
+          <input
+            type="text" placeholder="Search employees..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              flex: 1, padding: '12px 14px', borderRadius: '10px',
+              fontSize: '14px', border: '1.5px solid #E2E8F0',
+              backgroundColor: '#F8FAFC',
+            }}
+          />
+        </div>
 
-        {filtered.length === 0 ? (
+        {filteredEmployees.length === 0 ? (
           <div style={{
             backgroundColor: 'white', borderRadius: '16px', padding: '40px 20px',
             textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
           }}>
             <Calendar size={32} color="#CBD5E1" style={{ margin: '0 auto 12px' }} />
-            <p style={{ fontSize: '14px', color: '#94A3B8', margin: 0 }}>No attendance records</p>
+            <p style={{ fontSize: '14px', color: '#94A3B8', margin: 0 }}>No employees found</p>
           </div>
         ) : (
           <div style={{ backgroundColor: 'white', borderRadius: '16px',
@@ -65,8 +91,6 @@ export default function ViewAttendancePage() {
                   <th style={{ padding: '12px 16px', textAlign: 'left',
                     fontSize: '12px', fontWeight: '600', color: '#64748B' }}>Employee</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left',
-                    fontSize: '12px', fontWeight: '600', color: '#64748B' }}>Date</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left',
                     fontSize: '12px', fontWeight: '600', color: '#64748B' }}>Check In</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left',
                     fontSize: '12px', fontWeight: '600', color: '#64748B' }}>Check Out</th>
@@ -75,21 +99,29 @@ export default function ViewAttendancePage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r, i) => {
-                  const { label, color, icon: StatusIcon } = getStatusDisplay(r.status)
+                {filteredEmployees.map((r, i) => {
+                  const status = getStatusDisplay(r.status)
                   return (
                     <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
                       <td style={{ padding: '12px 16px', fontSize: '14px', color: '#1A2B4A' }}>
-                        {employees[r.uid]?.name || r.uid}
+                        {r.name}
                       </td>
-                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#64748B' }}>{r.date}</td>
-                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#64748B' }}>{r.checkInTime || '-'}</td>
-                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#64748B' }}>{r.checkOutTime || '-'}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#64748B' }}>
+                        {r.checkInTime || '—'}
+                      </td>
+                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#64748B' }}>
+                        {r.checkOutTime || '—'}
+                      </td>
                       <td style={{ padding: '12px 16px', fontSize: '14px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <StatusIcon size={14} color={color} />
-                          <span style={{ color, fontWeight: '500' }}>{label}</span>
-                        </div>
+                        <span style={{
+                          fontSize: '11px', fontWeight: '600',
+                          padding: '4px 10px', borderRadius: '6px',
+                          backgroundColor: r.status === 'checked_out' ? '#ECFDF5' : r.status === 'checked_in' ? '#EFF6FF' : '#F8FAFC',
+                          color: status.color,
+                          textTransform: 'capitalize',
+                        }}>
+                          {status.label}
+                        </span>
                       </td>
                     </tr>
                   )

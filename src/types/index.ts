@@ -46,7 +46,7 @@ export interface LeaveModel {
 }
 
 export interface AttendanceModel {
-  status: "checked_in" | "checked_out" | "absent"
+  status: "not_started" | "checked_in" | "checked_out"
   checkInTime?: string
   checkOutTime?: string
 }

@@ -29,10 +29,8 @@ interface LeaveReq {
 }
 interface AttendanceRecord {
   uid: string; date: string
-  clockInTime?: string; clockInStatus?: 'pending' | 'confirmed'
-  clockInConfirmedBy?: string | null
-  clockOutTime?: string | null; clockOutStatus?: 'pending' | 'confirmed' | null
-  clockOutConfirmedBy?: string | null
+  status?: "checked_in" | "checked_out"
+  checkInTime?: string; checkOutTime?: string
   employeeName?: string
 }
 interface Announcement {
@@ -201,7 +199,7 @@ list.push({
 
   const pending = leaves.filter(l => l.status === 'Pending')
   const approved = leaves.filter(l => l.status === 'Approved')
-  const todayPresent = attendance.filter(a => a.date === today && a.clockInStatus === 'confirmed')
+  const todayPresent = attendance.filter(a => a.date === today && (a.status === 'checked_in' || a.status === 'checked_out'))
   const complete = employees.filter(e => (e?.completion ?? 0) === 100)
   const incomplete = employees.filter(e => (e?.completion ?? 0) < 100)
   const filtered = employees.filter(e =>
@@ -211,15 +209,6 @@ list.push({
 
   const handleLeave = async (id: string, status: string) => {
     await update(ref(db, `LeaveRequests/${id}`), { status })
-  }
-
-  const confirmAttendance = async (uid: string, date: string, type: 'clockIn' | 'clockOut') => {
-    const statusField = type === 'clockIn' ? 'clockInStatus' : 'clockOutStatus'
-    const confirmedByField = type === 'clockIn' ? 'clockInConfirmedBy' : 'clockOutConfirmedBy'
-    await update(ref(db, `Attendance/${uid}/${date}`), {
-      [statusField]: 'confirmed',
-      [confirmedByField]: 'Admin',
-    })
   }
 
   const getInitials = (n?: string) => {
@@ -671,25 +660,11 @@ list.push({
           {activeNav === 'attendance' && (
             <div style={{ padding: '24px 28px', overflowY: 'auto' }}>
 
-              {/* Pending confirmations banner */}
-              {attendance.filter(a => a.clockInStatus === 'pending' || a.clockOutStatus === 'pending').length > 0 && (
-                <div style={{
-                  backgroundColor: '#FFFBEB', border: '1px solid #FCD34D',
-                  borderRadius: '12px', padding: '14px 18px', marginBottom: '16px',
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                }}>
-                  <Clock size={18} color="#B45309" />
-                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#92400E', margin: 0 }}>
-                    {attendance.filter(a => a.clockInStatus === 'pending' || a.clockOutStatus === 'pending').length} attendance request(s) need your confirmation
-                  </p>
-                </div>
-              )}
-
               <div style={{ ...card, overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#F8FAFC' }}>
-                      {['Employee', 'Date', 'Clock In', 'Clock Out', 'Action'].map(h => (
+                      {['Employee', 'Date', 'Check In', 'Check Out', 'Status'].map(h => (
                         <th key={h} style={{
                           padding: '14px 18px', textAlign: 'left', fontSize: '11px',
                           fontWeight: '700', color: '#64748B', textTransform: 'uppercase',
@@ -703,66 +678,16 @@ list.push({
                       <tr><td colSpan={5} style={{ textAlign: 'center', padding: '50px', color: '#94A3B8' }}>No records found</td></tr>
                     ) : attendance.slice(0, 100).map((a, i) => {
                       const empName = employees.find(e => e.uid === a.uid)?.name || a.employeeName || a.uid
+                      const statusLabel = a.status === 'checked_out' ? 'Complete' : a.status === 'checked_in' ? 'Checked In' : 'Not Marked'
+                      const statusColor = a.status === 'checked_out' ? '#15803D' : a.status === 'checked_in' ? '#007CC2' : '#94A3B8'
                       return (
                         <tr key={i} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'white'}>
                           <td style={{ padding: '13px 18px', fontSize: '13px', fontWeight: '600', color: '#1A2B4A', borderBottom: '1px solid #F1F5F9' }}>{empName}</td>
                           <td style={{ padding: '13px 18px', fontSize: '13px', color: '#64748B', borderBottom: '1px solid #F1F5F9' }}>{a.date}</td>
-
-                          {/* Clock In cell */}
+                          <td style={{ padding: '13px 18px', fontSize: '13px', color: '#64748B', borderBottom: '1px solid #F1F5F9' }}>{a.checkInTime || '—'}</td>
+                          <td style={{ padding: '13px 18px', fontSize: '13px', color: '#64748B', borderBottom: '1px solid #F1F5F9' }}>{a.checkOutTime || '—'}</td>
                           <td style={{ padding: '13px 18px', borderBottom: '1px solid #F1F5F9' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '12px', color: '#64748B' }}>
-                                {a.clockInTime || '—'}
-                              </span>
-                              {a.clockInStatus === 'pending' && (
-                                <span style={{ fontSize: '10px', fontWeight: '700', backgroundColor: '#FEF3C7', color: '#B45309', padding: '2px 8px', borderRadius: '20px' }}>Pending</span>
-                              )}
-                              {a.clockInStatus === 'confirmed' && (
-                                <span style={{ fontSize: '10px', fontWeight: '700', backgroundColor: '#DCFCE7', color: '#15803D', padding: '2px 8px', borderRadius: '20px' }}>✓ Confirmed</span>
-                              )}
-                            </div>
-                          </td>
-
-                          {/* Clock Out cell */}
-                          <td style={{ padding: '13px 18px', borderBottom: '1px solid #F1F5F9' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '12px', color: '#64748B' }}>
-                                {a.clockOutTime || '—'}
-                              </span>
-                              {a.clockOutStatus === 'pending' && (
-                                <span style={{ fontSize: '10px', fontWeight: '700', backgroundColor: '#FEF3C7', color: '#B45309', padding: '2px 8px', borderRadius: '20px' }}>Pending</span>
-                              )}
-                              {a.clockOutStatus === 'confirmed' && (
-                                <span style={{ fontSize: '10px', fontWeight: '700', backgroundColor: '#DCFCE7', color: '#15803D', padding: '2px 8px', borderRadius: '20px' }}>✓ Confirmed</span>
-                              )}
-                            </div>
-                          </td>
-
-                          {/* Action cell */}
-                          <td style={{ padding: '13px 18px', borderBottom: '1px solid #F1F5F9' }}>
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              {a.clockInStatus === 'pending' && (
-                                <button onClick={() => confirmAttendance(a.uid, a.date, 'clockIn')}
-                                  style={{
-                                    padding: '6px 12px', borderRadius: '8px',
-                                    backgroundColor: '#DCFCE7', color: '#15803D',
-                                    border: '1px solid #86EFAC', fontSize: '11px',
-                                    fontWeight: '700', cursor: 'pointer',
-                                  }}>Confirm In</button>
-                              )}
-                              {a.clockOutStatus === 'pending' && (
-                                <button onClick={() => confirmAttendance(a.uid, a.date, 'clockOut')}
-                                  style={{
-                                    padding: '6px 12px', borderRadius: '8px',
-                                    backgroundColor: '#DBEAFE', color: '#1D4ED8',
-                                    border: '1px solid #BFDBFE', fontSize: '11px',
-                                    fontWeight: '700', cursor: 'pointer',
-                                  }}>Confirm Out</button>
-                              )}
-                              {a.clockInStatus === 'confirmed' && a.clockOutStatus === 'confirmed' && (
-                                <span style={{ fontSize: '11px', color: '#94A3B8' }}>Complete</span>
-                              )}
-                            </div>
+                            <span style={{ fontSize: '11px', fontWeight: '600', color: statusColor, backgroundColor: '#F8FAFC', padding: '4px 10px', borderRadius: '6px', textTransform: 'capitalize' }}>{statusLabel}</span>
                           </td>
                         </tr>
                       )

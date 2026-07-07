@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ref, get, set } from 'firebase/database'
+import { ref, set, onValue } from 'firebase/database'
 import { db } from '../../firebase/config'
 import { storage, STORAGE_READY } from '../../firebase/config'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
@@ -15,12 +15,13 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     if (!uid) return
-    get(ref(db, `Employees/${uid}`)).then(snap => {
-      if (snap.exists()) {
-        const d = snap.val()
-        if (d.Documents) setDocuments(d.Documents)
-      }
-    }).catch(() => toast.error('Failed to load data'))
+    const unsub = onValue(ref(db, `Employees/${uid}/Documents`), snap => {
+      setDocuments(snap.exists() ? snap.val() : {})
+    }, (err) => {
+      console.error('[DocumentsPage] Realtime error:', err)
+      toast.error('Failed to load document status')
+    })
+    return () => unsub()
   }, [uid])
 
   const handleUpload = async (field: string, file: File) => {

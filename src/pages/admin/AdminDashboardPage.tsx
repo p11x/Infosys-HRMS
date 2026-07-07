@@ -21,6 +21,7 @@ interface Employee {
   profilePhoto?: string
   completion: number
   department?: string
+  Documents?: Record<string, string>
 }
 interface LeaveReq {
   leaveId: string; uid: string; name: string
@@ -113,48 +114,57 @@ export default function AdminDashboardPage() {
   })
 
 useEffect(() => {
-    const u1 = onValue(ref(db, 'Users'), async snap => {
+    const u1 = onValue(ref(db, 'Employees'), snap => {
       try {
         if (!snap.exists()) { setLoading(false); return }
-        const raw = snap.val()
-        const list: Employee[] = []
-        for (const uid of Object.keys(raw)) {
-          if (raw[uid].role !== 'employee') continue
-          const { get, ref: r } = await import('firebase/database')
-          const es = await get(r(db, `Employees/${uid}`))
-          const ed = es.exists() ? es.val() : {}
+        const employeesData = snap.val()
+        const list: Employee[] = Object.keys(employeesData).map(uid => {
+          const ed = employeesData[uid]
+          const docCount = [
+            ed?.Documents?.aadhaar, ed?.Documents?.pan, ed?.Documents?.resume, ed?.Documents?.photo
+          ].filter(Boolean).length
           const comp = [
-            !!(ed.name && ed.phone && ed.email),
-            !!ed.Education, !!ed.BankDetails, !!ed.Documents,
+            !!(ed?.name && ed?.phone && ed?.email),
+            !!ed?.Education, !!ed?.BankDetails, docCount > 0,
           ].filter(Boolean).length * 25
-          list.push({
+          return {
             uid,
-            name: raw[uid]?.name || ed?.name || ed?.email || 'Unknown Employee',
-            email: raw[uid]?.email || ed?.email || '',
+            name: ed?.name || ed?.email || 'Unknown Employee',
+            email: ed?.email || '',
             phone: ed?.phone || '',
             profilePhoto: ed?.profilePhoto || null,
             completion: comp,
             department: ed?.department || '',
-          })
-        }
+            Documents: ed?.Documents || {},
+          }
+        })
         setEmployees(list)
         setLoading(false)
       } catch (err) {
-        console.error('[AdminDashboardPage] Users read error:', err)
+        console.error('[AdminDashboardPage] Employees read error:', err)
         setLoading(false)
       }
     }, (err) => {
-      console.error('[AdminDashboardPage] Users DB error:', err)
+      console.error('[AdminDashboardPage] Employees DB error:', err)
       setLoading(false)
     })
-    const u2 = onValue(ref(db, 'LeaveRequests'), snap => {
+    const u2 = onValue(ref(db, 'Users'), snap => {
+      if (!snap.exists()) return
+      const raw = snap.val()
+      setEmployees(prev => prev.map(emp => ({
+        ...emp,
+        name: raw[emp.uid]?.name || emp.name,
+        email: raw[emp.uid]?.email || emp.email,
+      })))
+    }, (err) => console.error('[AdminDashboardPage] Users DB error:', err))
+    const u3 = onValue(ref(db, 'LeaveRequests'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setLeaves(Object.keys(d).map(id => ({ ...d[id], leaveId: id })))
     }, (err) => {
       console.error('[AdminDashboardPage] LeaveRequests DB error:', err)
     })
-    const u3 = onValue(ref(db, 'Attendance'), snap => {
+    const u4 = onValue(ref(db, 'Attendance'), snap => {
       if (!snap.exists()) return
       const d = snap.val(); const arr: AttendanceRecord[] = []
       Object.keys(d).forEach(uid =>
@@ -166,35 +176,35 @@ useEffect(() => {
     }, (err) => {
       console.error('[AdminDashboardPage] Attendance DB error:', err)
     })
-    const u4 = onValue(ref(db, 'Announcements'), snap => {
+    const u5 = onValue(ref(db, 'Announcements'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setAnnouncements(Object.keys(d).map(id => ({ ...d[id], id }) as Announcement))
     }, (err) => {
       console.error('[AdminDashboardPage] Announcements DB error:', err)
     })
-    const u5 = onValue(ref(db, 'Holidays'), snap => {
+    const u6 = onValue(ref(db, 'Holidays'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setHolidays(Object.keys(d).map(id => ({ ...d[id], id }) as Holiday))
     }, (err) => {
       console.error('[AdminDashboardPage] Holidays DB error:', err)
     })
-    const u6 = onValue(ref(db, 'SupportTickets'), snap => {
+    const u7 = onValue(ref(db, 'SupportTickets'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setTickets(Object.keys(d).map(id => ({ ...d[id], id }) as SupportTicket))
     }, (err) => {
       console.error('[AdminDashboardPage] SupportTickets DB error:', err)
     })
-    const u7 = onValue(ref(db, 'AuditLog'), snap => {
+    const u8 = onValue(ref(db, 'AuditLog'), snap => {
       if (!snap.exists()) return
       const d = snap.val()
       setAuditLogs(Object.keys(d).map(id => ({ ...d[id], id }) as AuditLog))
     }, (err) => {
       console.error('[AdminDashboardPage] AuditLog DB error:', err)
     })
-    return () => { u1(); u2(); u3(); u4(); u5(); u6(); u7() }
+    return () => { u1(); u2(); u3(); u4(); u5(); u6(); u7(); u8() }
   }, [])
 
   const logAction = async (action: string, details: string) => {
@@ -754,8 +764,8 @@ useEffect(() => {
                       <td style={{ padding: '12px 14px', fontSize: '13px', fontWeight: '600', color: '#1A2B4A', borderBottom: '1px solid #F1F5F9' }}>{emp.name}</td>
                       {['aadhaar', 'pan', 'resume', 'photo'].map(doc => (
                         <td key={doc} style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', textAlign: 'center' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: emp.completion >= 75 ? '#DCFCE7' : '#FEF3C7' }}>
-                            {emp.completion >= 75 ? <Check size={13} color="#15803D" /> : <Clock size={11} color="#B45309" />}
+                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: emp.Documents?.[doc] ? '#DCFCE7' : '#FEF3C7' }}>
+                            {emp.Documents?.[doc] ? <Check size={13} color="#15803D" /> : <Clock size={11} color="#B45309" />}
                           </span>
                         </td>
                       ))}

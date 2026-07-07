@@ -22,4 +22,5 @@ setPersistence(auth, browserSessionPersistence).catch(console.error)
 export const db = getDatabase(app)
 export const storage = getStorage(app)
 export const DB_READY = !!import.meta.env.VITE_FIREBASE_DATABASE_URL
+export const STORAGE_READY = !!import.meta.env.VITE_FIREBASE_STORAGE_BUCKET
 export default app

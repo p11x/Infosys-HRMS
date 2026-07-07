@@ -32,3 +32,6 @@ npm-debug.log*
 
 # Vercel
 .vercel
+
+# Config files
+*.config.json

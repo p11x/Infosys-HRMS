@@ -9,7 +9,7 @@ import {
   TrendingUp, Clock, UserCheck, UserX, Award,
   ChevronRight, Check, X, Shield,
   BarChart3, HelpCircle,
-  AlertCircle, ArrowUpRight, Eye,
+  AlertCircle, ArrowUpRight, Eye, Download,
   FileCheck, Briefcase, Megaphone, Trash2, Cake
 } from 'lucide-react'
 
@@ -747,37 +747,59 @@ useEffect(() => {
             </div>
           )}
 
-          {activeNav === 'documents' && (
-            <div style={{ ...card, padding: '24px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0F1C2E', margin: '0 0 16px' }}>Employee Document Status</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#F8FAFC' }}>
-                    {['Employee', 'Aadhaar', 'PAN', 'Resume', 'Photo', 'Overall'].map(h => (
-                      <th key={h} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {employees.map(emp => (
-                    <tr key={emp.uid} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'white'}>
-                      <td style={{ padding: '12px 14px', fontSize: '13px', fontWeight: '600', color: '#1A2B4A', borderBottom: '1px solid #F1F5F9' }}>{emp.name}</td>
-                      {['aadhaar', 'pan', 'resume', 'photo'].map(doc => (
-                        <td key={doc} style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', textAlign: 'center' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: emp.Documents?.[doc] ? '#DCFCE7' : '#FEF3C7' }}>
-                            {emp.Documents?.[doc] ? <Check size={13} color="#15803D" /> : <Clock size={11} color="#B45309" />}
-                          </span>
-                        </td>
-                      ))}
-                      <td style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9' }}>
-                        <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', backgroundColor: emp.completion === 100 ? '#DCFCE7' : '#FEF3C7', color: emp.completion === 100 ? '#15803D' : '#B45309' }}>{emp.completion}%</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+{activeNav === 'documents' && (
+             <div style={{ ...card, padding: '24px' }}>
+               <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0F1C2E', margin: '0 0 16px' }}>Employee Document Status</h3>
+               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                 <thead>
+                   <tr style={{ backgroundColor: '#F8FAFC' }}>
+                     {['Employee', 'Aadhaar', 'PAN', 'Resume', 'Photo'].map(h => (
+                       <th key={h} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>{h}</th>
+                     ))}
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {employees.map(emp => (
+                     <tr key={emp.uid} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'white'}>
+                       <td style={{ padding: '12px 14px', fontSize: '13px', fontWeight: '600', color: '#1A2B4A', borderBottom: '1px solid #F1F5F9' }}>{emp.name}</td>
+                       {['aadhaar', 'pan', 'resume', 'photo'].map(doc => {
+                         const url = emp.Documents?.[doc]
+                         return (
+                           <td key={doc} style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', textAlign: 'center' }}>
+                             {url ? (
+                               <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                 <button onClick={() => window.open(url, '_blank')} style={{ width: '26px', height: '26px', borderRadius: '6px', border: 'none', backgroundColor: '#EFF6FF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Eye size={12} color="#1D4ED8" /></button>
+                                 <button onClick={async () => {
+                                   try {
+                                     const response = await fetch(url)
+                                     const blob = await response.blob()
+                                     const blobUrl = URL.createObjectURL(blob)
+                                     const a = document.createElement('a')
+                                     a.href = blobUrl
+                                     a.download = `${doc}`
+                                     document.body.appendChild(a)
+                                     a.click()
+                                     document.body.removeChild(a)
+                                     URL.revokeObjectURL(blobUrl)
+                                   } catch (err) {
+                                     console.error('Download failed:', err)
+                                   }
+                                 }} style={{ width: '26px', height: '26px', borderRadius: '6px', border: 'none', backgroundColor: '#ECFDF5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Download size={12} color="#15803D" /></button>
+                               </div>
+                             ) : (
+                               <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#FEF3C7' }}>
+                                 <Clock size={11} color="#B45309" />
+                               </span>
+                             )}
+                           </td>
+                         )
+                       })}
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
+           )}
 
           {activeNav === 'announcements' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

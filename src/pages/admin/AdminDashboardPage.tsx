@@ -776,13 +776,15 @@ useEffect(() => {
              <div style={{ ...card, padding: '24px' }}>
                <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0F1C2E', margin: '0 0 16px' }}>Employee Document Status</h3>
                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                 <thead>
-                   <tr style={{ backgroundColor: '#F8FAFC' }}>
-                     {['Employee', 'Aadhaar', 'PAN', 'Resume', 'Photo'].map(h => (
-                       <th key={h} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>{h}</th>
-                     ))}
-                   </tr>
-                 </thead>
+<thead>
+                    <tr style={{ backgroundColor: '#F8FAFC' }}>
+                      <th style={{ padding: '12px 14px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>Employee</th>
+                      <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>Aadhaar</th>
+                      <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>PAN</th>
+                      <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>Resume</th>
+                      <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>Photo</th>
+                    </tr>
+                  </thead>
                  <tbody>
                    {employees.map(emp => (
                      <tr key={emp.uid} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'white'}>
@@ -1029,42 +1031,47 @@ useEffect(() => {
             </div>
           )}
 
-          {selectedEmployees.length > 0 && (
-            <div style={{ position: 'fixed', bottom: '20px', left: 'calc(50% + 110px)', transform: 'translateX(-50%)', backgroundColor: '#0F1C2E', borderRadius: '16px', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', zIndex: 100 }}>
-              <span style={{ color: 'white', fontSize: '13px', fontWeight: '600' }}>{selectedEmployees.length} selected</span>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={async () => {
-                  if (confirm('Remove these employees from DB? Auth accounts require Firebase Console removal.')) {
-                    for (const empUid of selectedEmployees) {
-                      await deleteEmployee(empUid)
-                    }
-                    setSelectedEmployees([])
-                  }
-                }} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#EF4444', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Delete</button>
-                <button onClick={() => setMsgOpen(true)} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#007CC2', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Message</button>
-                <button onClick={() => setSelectedEmployees([])} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Cancel</button>
-              </div>
-              
-              {msgOpen && (
-                <div style={{ position: 'fixed', top: '0', left: '0', right: '0', bottom: '0', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
-                  <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', width: '400px', maxWidth: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F1C2E', margin: '0 0 12px' }}>Send Message to {selectedEmployees.length} employee(s)</h3>
-                    <textarea
-                      value={msgText}
-                      onChange={e => setMsgText(e.target.value)}
-                      placeholder="Enter your message..."
-                      rows={4}
-                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1.5px solid #E2E8F0', fontSize: '14px', marginBottom: '16px' }}
-                    />
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button onClick={() => setMsgOpen(false)} style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', fontSize: '13px', cursor: 'pointer' }}>Cancel</button>
-                      <button onClick={sendMessage} style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#007CC2', color: 'white', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Send</button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+{selectedEmployees.length > 0 && (
+             <div style={{ position: 'fixed', bottom: '20px', left: 'calc(50% + 110px)', transform: 'translateX(-50%)', backgroundColor: '#0F1C2E', borderRadius: '16px', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', zIndex: 100 }}>
+               <span style={{ color: 'white', fontSize: '13px', fontWeight: '600' }}>{selectedEmployees.length} selected</span>
+               <div style={{ display: 'flex', gap: '8px' }}>
+                 <button onClick={async () => {
+                   if (confirm('Remove these employees from DB? Auth accounts require Firebase Console removal.')) {
+                     for (const empUid of selectedEmployees) {
+                       await deleteEmployee(empUid)
+                     }
+                     setSelectedEmployees([])
+                   }
+                 }} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#EF4444', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Delete</button>
+                 <button onClick={() => setMsgOpen(true)} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#007CC2', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Message</button>
+                 <button onClick={() => setSelectedEmployees([])} style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Cancel</button>
+               </div>
+             </div>
+           )}
+
+           {msgOpen && (
+             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+               <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', width: '400px', maxWidth: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                   <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F1C2E', margin: 0 }}>Send Message to {selectedEmployees.length} employee(s)</h3>
+                   <button onClick={() => setMsgOpen(false)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: 'none', backgroundColor: '#F8FAFC', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                     <X size={16} color="#64748B" />
+                   </button>
+                 </div>
+                 <textarea
+                   value={msgText}
+                   onChange={e => setMsgText(e.target.value)}
+                   placeholder="Enter your message..."
+                   rows={4}
+                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1.5px solid #E2E8F0', fontSize: '14px', marginBottom: '16px', resize: 'vertical', flex: 1, minHeight: '100px', boxSizing: 'border-box' }}
+                 />
+                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                   <button type="button" onClick={() => setMsgText('')} style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', fontSize: '13px', cursor: 'pointer' }}>Clear</button>
+                   <button type="button" onClick={sendMessage} style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#007CC2', color: 'white', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Send</button>
+                 </div>
+               </div>
+             </div>
+           )}
         </main>
       </div>
     </div>

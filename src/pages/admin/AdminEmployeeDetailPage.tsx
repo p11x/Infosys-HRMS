@@ -199,6 +199,13 @@ export default function AdminEmployeeDetailPage() {
               <Row icon={GraduationCap} label="College" value={data.Education.college} />
               <Row icon={GraduationCap} label="Degree" value={data.Education.degree} />
               <Row icon={Calendar} label="Year" value={data.Education.year} />
+              {data.Education.cgpa && <Row icon={GraduationCap} label="CGPA/Percentage" value={data.Education.cgpa} />}
+              {data.Education.collegeAddress && <Row icon={MapPin} label="College Address" value={data.Education.collegeAddress} />}
+              {data.Education.specialization && <Row icon={GraduationCap} label="Specialization" value={data.Education.specialization} />}
+              {(data.Education.fromYear || data.Education.toYear) && (
+                <Row icon={Calendar} label="Course Duration" value={`${data.Education.fromYear || ''} - ${data.Education.toYear || ''}`} />
+              )}
+              {data.Education.university && <Row icon={GraduationCap} label="University" value={data.Education.university} />}
             </>
           ) : (
             <p style={{ fontSize: '13px', color: '#94A3B8' }}>Not provided</p>

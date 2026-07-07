@@ -9,13 +9,20 @@ interface EducationForm {
   college: string
   degree: string
   year: string
+  cgpa: string
+  collegeAddress: string
+  specialization: string
+  fromYear: string
+  toYear: string
+  university: string
 }
 
 export default function EducationPage() {
   const { uid } = useAuth()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState<EducationForm>({
-    college: '', degree: '', year: '',
+    college: '', degree: '', year: '', cgpa: '', collegeAddress: '',
+    specialization: '', fromYear: '', toYear: '', university: '',
   })
 
   useEffect(() => {
@@ -110,6 +117,157 @@ export default function EducationPage() {
               placeholder="Enter year (YYYY)"
               value={form.year}
               onChange={e => setForm(p => ({ ...p, year: e.target.value }))}
+              style={{
+                width: '100%', padding: '12px 14px',
+                borderRadius: '10px', fontSize: '14px',
+                border: '1.5px solid #E2E8F0', outline: 'none',
+                backgroundColor: '#F8FAFC', color: '#1A2B4A',
+                boxSizing: 'border-box', transition: 'border-color 0.2s',
+              }}
+              onFocus={e => e.target.style.borderColor = '#007CC2'}
+              onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+            />
+          </div>
+
+          <div>
+            <label style={{
+              fontSize: '12px', fontWeight: '600', color: '#64748B',
+              textTransform: 'uppercase', letterSpacing: '0.5px',
+              display: 'block', marginBottom: '6px',
+            }}>
+              Overall CGPA/Percentage <span style={{ color: '#EF4444' }}>*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g., 8.5 or 85%"
+              value={form.cgpa}
+              onChange={e => setForm(p => ({ ...p, cgpa: e.target.value }))}
+              style={{
+                width: '100%', padding: '12px 14px',
+                borderRadius: '10px', fontSize: '14px',
+                border: '1.5px solid #E2E8F0', outline: 'none',
+                backgroundColor: '#F8FAFC', color: '#1A2B4A',
+                boxSizing: 'border-box', transition: 'border-color 0.2s',
+              }}
+              onFocus={e => e.target.style.borderColor = '#007CC2'}
+              onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+            />
+          </div>
+
+          <div>
+            <label style={{
+              fontSize: '12px', fontWeight: '600', color: '#64748B',
+              textTransform: 'uppercase', letterSpacing: '0.5px',
+              display: 'block', marginBottom: '6px',
+            }}>
+              College Address <span style={{ color: '#EF4444' }}>*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter college address"
+              value={form.collegeAddress}
+              onChange={e => setForm(p => ({ ...p, collegeAddress: e.target.value }))}
+              style={{
+                width: '100%', padding: '12px 14px',
+                borderRadius: '10px', fontSize: '14px',
+                border: '1.5px solid #E2E8F0', outline: 'none',
+                backgroundColor: '#F8FAFC', color: '#1A2B4A',
+                boxSizing: 'border-box', transition: 'border-color 0.2s',
+              }}
+              onFocus={e => e.target.style.borderColor = '#007CC2'}
+              onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+            />
+          </div>
+
+          <div>
+            <label style={{
+              fontSize: '12px', fontWeight: '600', color: '#64748B',
+              textTransform: 'uppercase', letterSpacing: '0.5px',
+              display: 'block', marginBottom: '6px',
+            }}>
+              Specialization/Branch
+            </label>
+            <input
+              type="text"
+              placeholder="Enter specialization or branch"
+              value={form.specialization}
+              onChange={e => setForm(p => ({ ...p, specialization: e.target.value }))}
+              style={{
+                width: '100%', padding: '12px 14px',
+                borderRadius: '10px', fontSize: '14px',
+                border: '1.5px solid #E2E8F0', outline: 'none',
+                backgroundColor: '#F8FAFC', color: '#1A2B4A',
+                boxSizing: 'border-box', transition: 'border-color 0.2s',
+              }}
+              onFocus={e => e.target.style.borderColor = '#007CC2'}
+              onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{
+                fontSize: '12px', fontWeight: '600', color: '#64748B',
+                textTransform: 'uppercase', letterSpacing: '0.5px',
+                display: 'block', marginBottom: '6px',
+              }}>
+                From Year
+              </label>
+              <input
+                type="number"
+                placeholder="From (YYYY)"
+                value={form.fromYear}
+                onChange={e => setForm(p => ({ ...p, fromYear: e.target.value }))}
+                style={{
+                  width: '100%', padding: '12px 14px',
+                  borderRadius: '10px', fontSize: '14px',
+                  border: '1.5px solid #E2E8F0', outline: 'none',
+                  backgroundColor: '#F8FAFC', color: '#1A2B4A',
+                  boxSizing: 'border-box', transition: 'border-color 0.2s',
+                }}
+                onFocus={e => e.target.style.borderColor = '#007CC2'}
+                onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{
+                fontSize: '12px', fontWeight: '600', color: '#64748B',
+                textTransform: 'uppercase', letterSpacing: '0.5px',
+                display: 'block', marginBottom: '6px',
+              }}>
+                To Year
+              </label>
+              <input
+                type="number"
+                placeholder="To (YYYY)"
+                value={form.toYear}
+                onChange={e => setForm(p => ({ ...p, toYear: e.target.value }))}
+                style={{
+                  width: '100%', padding: '12px 14px',
+                  borderRadius: '10px', fontSize: '14px',
+                  border: '1.5px solid #E2E8F0', outline: 'none',
+                  backgroundColor: '#F8FAFC', color: '#1A2B4A',
+                  boxSizing: 'border-box', transition: 'border-color 0.2s',
+                }}
+                onFocus={e => e.target.style.borderColor = '#007CC2'}
+                onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{
+              fontSize: '12px', fontWeight: '600', color: '#64748B',
+              textTransform: 'uppercase', letterSpacing: '0.5px',
+              display: 'block', marginBottom: '6px',
+            }}>
+              University Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter university name"
+              value={form.university}
+              onChange={e => setForm(p => ({ ...p, university: e.target.value }))}
               style={{
                 width: '100%', padding: '12px 14px',
                 borderRadius: '10px', fontSize: '14px',

@@ -20,6 +20,12 @@ export interface EducationModel {
   college: string
   degree: string
   year: string
+  cgpa?: string
+  collegeAddress?: string
+  specialization?: string
+  fromYear?: string
+  toYear?: string
+  university?: string
 }
 
 export interface BankDetailsModel {

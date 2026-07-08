@@ -38,6 +38,24 @@ export default function EducationPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!uid) return
+
+    const currentYear = new Date().getFullYear()
+    const fromY = parseInt(form.fromYear)
+    const toY = parseInt(form.toYear)
+
+    if (form.fromYear && (fromY < 1980 || fromY > currentYear + 10)) {
+      toast.error('From Year must be between 1980 and ' + (currentYear + 10))
+      return
+    }
+    if (form.toYear && (toY < 1980 || toY > currentYear + 10)) {
+      toast.error('To Year must be between 1980 and ' + (currentYear + 10))
+      return
+    }
+    if (form.fromYear && form.toYear && toY < fromY) {
+      toast.error('To Year cannot be earlier than From Year')
+      return
+    }
+
     setLoading(true)
     try {
       await set(ref(db, `Employees/${uid}/Education`), form)

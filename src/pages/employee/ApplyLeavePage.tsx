@@ -23,9 +23,16 @@ export default function ApplyLeavePage() {
     : 0
   const dayCount = Math.max(0, Math.ceil(days / (1000 * 60 * 60 * 24)) + 1)
 
+  const today = new Date().toISOString().split('T')[0]
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!uid) return
+
+    if (form.fromDate < today || form.toDate < today) {
+      toast.error('Leave can only be applied for today or future dates')
+      return
+    }
 
     if (form.toDate < form.fromDate) {
       toast.error('To date must be after from date')
@@ -69,6 +76,7 @@ export default function ApplyLeavePage() {
                 type="date"
                 value={form.fromDate}
                 onChange={e => setForm(p => ({ ...p, fromDate: e.target.value }))}
+                min={today}
                 style={{
                   width: '100%', padding: '12px 14px', borderRadius: '10px', fontSize: '14px',
                   border: '1.5px solid #E2E8F0', outline: 'none', backgroundColor: '#F8FAFC',
@@ -87,6 +95,7 @@ export default function ApplyLeavePage() {
                 type="date"
                 value={form.toDate}
                 onChange={e => setForm(p => ({ ...p, toDate: e.target.value }))}
+                min={today}
                 style={{
                   width: '100%', padding: '12px 14px', borderRadius: '10px', fontSize: '14px',
                   border: '1.5px solid #E2E8F0', outline: 'none', backgroundColor: '#F8FAFC',

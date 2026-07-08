@@ -32,12 +32,26 @@ export default function BankDetailsPage() {
 
   const validateIFSC = (value: string) => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value) || 'Invalid IFSC'
 
+  const validateHolderName = (value: string) => /^[A-Za-z\s.'-]*$/.test(value) || 'Invalid name'
+
+  const validateAccountNumber = (value: string) => /^\d*$/.test(value) || 'Invalid number'
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!uid) return
 
     if (!validateIFSC(form.ifsc)) {
       toast.error('Invalid IFSC code')
+      return
+    }
+
+    if (form.holderName && !validateHolderName(form.holderName)) {
+      toast.error('Account Holder Name must contain only letters')
+      return
+    }
+
+    if (form.accountNumber && !validateAccountNumber(form.accountNumber)) {
+      toast.error('Account Number must contain only digits')
       return
     }
 
@@ -57,6 +71,21 @@ export default function BankDetailsPage() {
       toast.success('Bank details saved!')
     } catch { toast.error('Save failed') }
     finally { setLoading(false) }
+  }
+
+  const handleHolderNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    if (/^[A-Za-z\s.'-]*$/.test(val) || val === '') setForm(p => ({ ...p, holderName: val }))
+  }
+
+  const handleAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    if (/^\d*$/.test(val) || val === '') setForm(p => ({ ...p, accountNumber: val }))
+  }
+
+  const handleConfirmAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    if (/^\d*$/.test(val) || val === '') setForm(p => ({ ...p, confirmAccountNumber: val }))
   }
 
   return (
@@ -100,7 +129,7 @@ export default function BankDetailsPage() {
             <input
               type="text" placeholder="Enter holder name"
               value={form.holderName}
-              onChange={e => setForm(p => ({ ...p, holderName: e.target.value }))}
+              onChange={handleHolderNameChange}
               style={{
                 width: '100%', padding: '12px 14px', borderRadius: '10px', fontSize: '14px',
                 border: '1.5px solid #E2E8F0', outline: 'none', backgroundColor: '#F8FAFC', color: '#1A2B4A',
@@ -122,7 +151,7 @@ export default function BankDetailsPage() {
             <input
               type="password" placeholder="Enter account number"
               value={form.accountNumber}
-              onChange={e => setForm(p => ({ ...p, accountNumber: e.target.value }))}
+              onChange={handleAccountNumberChange}
               style={{
                 width: '100%', padding: '12px 14px', borderRadius: '10px', fontSize: '14px',
                 border: '1.5px solid #E2E8F0', outline: 'none', backgroundColor: '#F8FAFC', color: '#1A2B4A',
@@ -144,7 +173,7 @@ export default function BankDetailsPage() {
             <input
               type="password" placeholder="Confirm account number"
               value={form.confirmAccountNumber}
-              onChange={e => setForm(p => ({ ...p, confirmAccountNumber: e.target.value }))}
+              onChange={handleConfirmAccountNumberChange}
               style={{
                 width: '100%', padding: '12px 14px', borderRadius: '10px', fontSize: '14px',
                 border: '1.5px solid #E2E8F0', outline: 'none', backgroundColor: '#F8FAFC', color: '#1A2B4A',

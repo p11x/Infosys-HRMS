@@ -61,27 +61,15 @@ export default function PayslipPage() {
                       {new Date(p.sentAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <button onClick={async () => {
-                        try {
-                          const response = await fetch(p.url)
-                          const blob = await response.blob()
-                          const blobUrl = URL.createObjectURL(blob)
-                          const a = document.createElement('a')
-                          a.href = blobUrl
-                          a.download = `payslip-${p.period}.pdf`
-                          document.body.appendChild(a)
-                          a.click()
-                          document.body.removeChild(a)
-                          URL.revokeObjectURL(blobUrl)
-                        } catch (err) { console.error('Download failed:', err) }
-                      }} style={{
+                      <a href={p.url} download target="_blank" rel="noopener" style={{
                         padding: '6px 12px', borderRadius: '6px',
                         backgroundColor: '#ECFDF5', border: '1px solid #86EFAC',
                         color: '#15803D', fontSize: '12px', fontWeight: '600',
                         cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
+                        textDecoration: 'none',
                       }}>
                         <Download size={12} /> Download
-                      </button>
+                      </a>
                     </td>
                   </tr>
                 ))}

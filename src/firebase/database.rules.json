@@ -46,6 +46,12 @@
     "LeaveBalance": {
       ".read": "auth != null",
       ".write": "root.child('Users').child(auth.uid).child('role').val() === 'admin'"
+    },
+    "Messages": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('Users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "root.child('Users').child(auth.uid).child('role').val() === 'admin'"
+      }
     }
   }
 }

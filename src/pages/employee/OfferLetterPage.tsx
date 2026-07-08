@@ -35,27 +35,15 @@ export default function OfferLetterPage() {
             <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 16px' }}>
               Sent on {new Date(offerLetter.sentAt).toLocaleDateString()}
             </p>
-            <button onClick={async () => {
-              try {
-                const response = await fetch(offerLetter.url)
-                const blob = await response.blob()
-                const blobUrl = URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = blobUrl
-                a.download = 'offer-letter.pdf'
-                document.body.appendChild(a)
-                a.click()
-                document.body.removeChild(a)
-                URL.revokeObjectURL(blobUrl)
-              } catch (err) { console.error('Download failed:', err) }
-            }} style={{
+            <a href={offerLetter.url} download target="_blank" rel="noopener" style={{
               padding: '10px 20px', borderRadius: '8px',
               backgroundColor: '#007CC2', color: 'white',
               border: 'none', fontSize: '13px', fontWeight: '600',
               cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px',
+              textDecoration: 'none',
             }}>
               <Download size={16} /> Download Offer Letter
-            </button>
+            </a>
           </>
         ) : (
           <>

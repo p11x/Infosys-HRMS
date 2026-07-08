@@ -136,27 +136,15 @@ return (
                 </div>
               </div>
               {offerLetter && (
-                <button onClick={async () => {
-                  try {
-                    const response = await fetch(offerLetter.url)
-                    const blob = await response.blob()
-                    const blobUrl = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = blobUrl
-                    a.download = 'offer-letter.pdf'
-                    document.body.appendChild(a)
-                    a.click()
-                    document.body.removeChild(a)
-                    URL.revokeObjectURL(blobUrl)
-                  } catch (err) { console.error('Download failed:', err) }
-                }} style={{
+                <a href={offerLetter.url} download target="_blank" rel="noopener" style={{
                   padding: '8px 14px', borderRadius: '8px',
                   backgroundColor: '#ECFDF5', border: '1px solid #86EFAC',
                   color: '#15803D', fontSize: '13px', fontWeight: '600',
                   cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
+                  textDecoration: 'none',
                 }}>
                   <Download size={14} /> Download
-                </button>
+                </a>
               )}
             </div>
 
@@ -182,38 +170,26 @@ return (
                 </div>
               </div>
               {Object.keys(payslips).length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {Object.entries(payslips).map(([id, p]) => (
-                    <div key={id} style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '8px 12px', borderRadius: '8px',
-                      backgroundColor: '#F8FAFC',
-                    }}>
-                      <span style={{ fontSize: '13px', color: '#1A2B4A' }}>{p.period}</span>
-                      <button onClick={async () => {
-                        try {
-                          const response = await fetch(p.url)
-                          const blob = await response.blob()
-                          const blobUrl = URL.createObjectURL(blob)
-                          const a = document.createElement('a')
-                          a.href = blobUrl
-                          a.download = `payslip-${p.period}.pdf`
-                          document.body.appendChild(a)
-                          a.click()
-                          document.body.removeChild(a)
-                          URL.revokeObjectURL(blobUrl)
-                        } catch (err) { console.error('Download failed:', err) }
-                      }} style={{
-                        padding: '6px 10px', borderRadius: '6px',
-                        backgroundColor: '#ECFDF5', border: '1px solid #86EFAC',
-                        color: '#15803D', fontSize: '12px', fontWeight: '600',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
-                      }}>
-                        <Download size={12} /> Download
-                      </button>
-                    </div>
-                  ))}
-                </div>
+<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                   {Object.entries(payslips).map(([id, p]) => (
+                     <div key={id} style={{
+                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                       padding: '8px 12px', borderRadius: '8px',
+                       backgroundColor: '#F8FAFC',
+                     }}>
+                       <span style={{ fontSize: '13px', color: '#1A2B4A' }}>{p.period}</span>
+                       <a href={p.url} download target="_blank" rel="noopener" style={{
+                         padding: '6px 10px', borderRadius: '6px',
+                         backgroundColor: '#ECFDF5', border: '1px solid #86EFAC',
+                         color: '#15803D', fontSize: '12px', fontWeight: '600',
+                         cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
+                         textDecoration: 'none',
+                       }}>
+                         <Download size={12} /> Download
+                       </a>
+                     </div>
+                   ))}
+                 </div>
               ) : (
                 <p style={{ fontSize: '12px', color: '#94A3B8', fontStyle: 'italic' }}>No payslips received yet</p>
               )}

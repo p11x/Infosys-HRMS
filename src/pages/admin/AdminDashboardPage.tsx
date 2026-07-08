@@ -792,33 +792,18 @@ useEffect(() => {
                        {['aadhaar', 'pan', 'resume', 'photo'].map(doc => {
                          const url = emp.Documents?.[doc]
                          return (
-                           <td key={doc} style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', textAlign: 'center' }}>
-                             {url ? (
-                               <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                                 <button onClick={() => window.open(url, '_blank')} style={{ width: '26px', height: '26px', borderRadius: '6px', border: 'none', backgroundColor: '#EFF6FF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Eye size={12} color="#1D4ED8" /></button>
-                                 <button onClick={async () => {
-                                   try {
-                                     const response = await fetch(url)
-                                     const blob = await response.blob()
-                                     const blobUrl = URL.createObjectURL(blob)
-                                     const a = document.createElement('a')
-                                     a.href = blobUrl
-                                     a.download = `${doc}`
-                                     document.body.appendChild(a)
-                                     a.click()
-                                     document.body.removeChild(a)
-                                     URL.revokeObjectURL(blobUrl)
-                                   } catch (err) {
-                                     console.error('Download failed:', err)
-                                   }
-                                 }} style={{ width: '26px', height: '26px', borderRadius: '6px', border: 'none', backgroundColor: '#ECFDF5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Download size={12} color="#15803D" /></button>
-                               </div>
-                             ) : (
-                               <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#FEF3C7' }}>
-                                 <Clock size={11} color="#B45309" />
-                               </span>
-                             )}
-                           </td>
+<td key={doc} style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', textAlign: 'center' }}>
+                              {url ? (
+                                <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                  <button onClick={() => window.open(url, '_blank')} style={{ width: '26px', height: '26px', borderRadius: '6px', border: 'none', backgroundColor: '#EFF6FF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Eye size={12} color="#1D4ED8" /></button>
+                                  <a href={url} download target="_blank" rel="noopener" style={{ width: '26px', height: '26px', borderRadius: '6px', border: 'none', backgroundColor: '#ECFDF5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}><Download size={12} color="#15803D" /></a>
+                                </div>
+                              ) : (
+                                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#FEF3C7' }}>
+                                  <Clock size={11} color="#B45309" />
+                                </span>
+                              )}
+                            </td>
                          )
                        })}
                      </tr>

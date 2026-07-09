@@ -30,7 +30,7 @@ Infosys Onboarding Portal is a web application for employee onboarding and HR ma
 | 👤 **Personal Details** | Name, phone, WhatsApp, email, DOB, address, gender, profile photo upload |
 | 🎓 **Education** | College, degree, CGPA/Percentage, college address, specialization/branch, from/to year |
 | 🏦 **Bank Details** | Bank name, account holder name (alphabetic input), account number (numeric input), IFSC code, confirm account match |
-| 📄 **Send to Company** | Upload Aadhaar, PAN, resume, photo to Firebase Storage |
+| 📄 **Send to Company** | Upload Aadhaar, PAN, resume, photo, signature to Firebase Storage |
 | 📥 **Received from Company** | View/download offer letter, payslips (admin-sent documents) |
 | 📅 **Apply Leave** | Date range selection (today/future dates only), reason submission |
 | ✅ **Attendance** | Direct self-service clock in/out (instant status, no approval) |

@@ -36,10 +36,11 @@ export interface BankDetailsModel {
 }
 
 export interface DocumentsModel {
-  aadhaar: string
-  pan: string
-  resume: string
-  photo: string
+  aadhaar?: string
+  pan?: string
+  resume?: string
+  photo?: string
+  signature?: string
 }
 
 export interface LeaveModel {

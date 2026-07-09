@@ -123,9 +123,9 @@ useEffect(() => {
         const employeesData = snap.val()
         const list: Employee[] = Object.keys(employeesData).map(uid => {
           const ed = employeesData[uid]
-          const docCount = [
-            ed?.Documents?.aadhaar, ed?.Documents?.pan, ed?.Documents?.resume, ed?.Documents?.photo
-          ].filter(Boolean).length
+const docCount = [
+             ed?.Documents?.aadhaar, ed?.Documents?.pan, ed?.Documents?.resume, ed?.Documents?.photo, ed?.Documents?.signature
+           ].filter(Boolean).length
           const comp = [
             !!(ed?.name && ed?.phone && ed?.email),
             !!ed?.Education, !!ed?.BankDetails, docCount > 0,
@@ -783,13 +783,14 @@ useEffect(() => {
                       <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>PAN</th>
                       <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>Resume</th>
                       <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>Photo</th>
+                      <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E2E8F0' }}>Signature</th>
                     </tr>
                   </thead>
                  <tbody>
                    {employees.map(emp => (
                      <tr key={emp.uid} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'white'}>
                        <td style={{ padding: '12px 14px', fontSize: '13px', fontWeight: '600', color: '#1A2B4A', borderBottom: '1px solid #F1F5F9' }}>{emp.name}</td>
-                       {['aadhaar', 'pan', 'resume', 'photo'].map(doc => {
+                       {['aadhaar', 'pan', 'resume', 'photo', 'signature'].map(doc => {
                          const url = emp.Documents?.[doc]
                          return (
 <td key={doc} style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', textAlign: 'center' }}>

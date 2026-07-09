@@ -53,6 +53,7 @@ export default function DocumentsPage() {
     { key: 'pan', label: 'PAN Card' },
     { key: 'resume', label: 'Resume' },
     { key: 'photo', label: 'Photo' },
+    { key: 'signature', label: 'Signature' },
   ]
 
 return (

@@ -236,12 +236,13 @@ export default function AdminEmployeeDetailPage() {
         <div style={{ ...card, marginBottom: '16px' }}>
           <h3 style={{ fontSize: '15px', fontWeight: '700',
             color: '#0F1C2E', margin: '0 0 12px' }}>Documents</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <DocCard label="Aadhaar Card" fileUrl={data?.Documents?.aadhaar} />
-            <DocCard label="PAN Card" fileUrl={data?.Documents?.pan} />
-            <DocCard label="Resume" fileUrl={data?.Documents?.resume} />
-            <DocCard label="Photo" fileUrl={data?.Documents?.photo} />
-          </div>
+<div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+             <DocCard label="Aadhaar Card" fileUrl={data?.Documents?.aadhaar} />
+             <DocCard label="PAN Card" fileUrl={data?.Documents?.pan} />
+             <DocCard label="Resume" fileUrl={data?.Documents?.resume} />
+             <DocCard label="Photo" fileUrl={data?.Documents?.photo} />
+             <DocCard label="Signature" fileUrl={data?.Documents?.signature} />
+           </div>
         </div>
 
         {/* Send to Employee */}

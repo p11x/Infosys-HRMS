@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "infosys-hrms-prod-87249"
-  }
+  },
+  "targets": {
+    "infosys-hrms-prod-87249": {
+      "hosting": {
+        "main": [
+          "infosysonboardingportal"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
